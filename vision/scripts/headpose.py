@@ -19,7 +19,7 @@ class Headpose:
         self.cap.set(3, self.width_cam)
         self.cap.set(4, self.height_cam)
         
-        # Interpolation
+        # Interpolation config
         self.smoothening                            = 8
         self.pTime                                  = 0
         self.plocX, self.plocY                      = 0, 0          # Previous locations of x and y
@@ -135,15 +135,16 @@ class Headpose:
         
         self.saveRealPos(op = 0)
 
-    # convert pixels to cm
-    def PixTocm(pixels):
-        centi = (pixels * 2.54)/96
-        print(round(centi, 2))
 
-    # convert cm to pixels
-    def cmToPixels(centi):
-        pixels = (centi * 96)/2.54
-        print(round(pixels, 2))
+    # Convert pixels to cm
+    def pixelToCm(self, pixels = 0):
+        self.centi = round(((pixels * 2.54)/96), 2)
+
+
+    # Convert cm to pixels
+    def cmToPixels(self, centi = 0):
+        self.pixels = round(((centi * 96)/2.54), 2)
+        
         
     # Prediction and results extraction
     def inference(self, image, results, start):
