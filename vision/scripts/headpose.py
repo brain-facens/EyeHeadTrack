@@ -104,7 +104,16 @@ class Headpose:
         # Put circle in screen
         cv2.circle(image, (point[0], point[1]), 15, (255, 0, 255), cv2.FILLED)      # circle shows that we are in moving mode
         self.plocX, self.plocY = self.clocX, self.clocY
-        
+
+    # convert pixels to cm
+    def PixTocm(pixels):
+        centi = (pixels * 2.54)/96
+        print(round(centi, 2))
+
+    # convert cm to pixels
+    def cmToPixels(centi):
+        pixels = (centi * 96)/2.54
+        print(round(pixels, 2))
         
     # Prediction and results extraction
     def inference(self, image, results, start):
