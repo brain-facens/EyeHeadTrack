@@ -21,8 +21,8 @@ class Headpose:
         # Interpolation
         self.smoothening                            = 8
         self.pTime                                  = 0
-        self.plocX, self.plocY                      = 0, 0          #previous locations of x and y
-        self.clocX, self.clocY                      = 0, 0          #current locations of x and y
+        self.plocX, self.plocY                      = 0, 0          # Previous locations of x and y
+        self.clocX, self.clocY                      = 0, 0          # Current locations of x and y
         self.width_screen, self.height_screen       = 1920, 1080
 
     # Preprocessing the image for the model
@@ -106,15 +106,18 @@ class Headpose:
         self.plocX, self.plocY = self.clocX, self.clocY
         
         
-    
+    # Prediction and results extraction
     def inference(self, image, results, start):
-        self.height_cam, self.width_cam, img_c = image.shape
-        face_3d             = []
-        face_2d             = []
-        p1, p2              = '', ''
+        self.height_cam, self.width_cam, img_c  = image.shape
+        face_3d                                 = []
+        face_2d                                 = []
+        p1, p2                                  = '', ''
         
+        # Process the result to 2d an 3d face
         if results.multi_face_landmarks:
+            # Rectangle representing screen orientation
             cv2.rectangle(image, (self.frame_R, self.frame_R), (self.width_cam - self.frame_R, self.height_cam - self.frame_R), (255, 0, 255), 2)
+            
             for face_landmarks in results.multi_face_landmarks:
                 for idx, lm in enumerate(face_landmarks.landmark):
                     if idx == 33 or idx == 263 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
@@ -131,7 +134,7 @@ class Headpose:
 
                         # Get the 3D Coordinates
                         face_3d.append([x, y, lm.z])
-                        
+                                
                 x, y, z, rot_vec, trans_vec, cam_matrix, dist_matrix = self.getCoords(face_2d, face_3d)
                 text = self.getText(x, y, z)
 
@@ -143,7 +146,7 @@ class Headpose:
                 
                 self.interpolation(image, p2)
                 
-                # Add the text on the image
+                # Add the text an line on the image
                 cv2.line(image, p1, p2, (255, 0, 0), 3)
                 cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
                 cv2.putText(image, "x: " + str(np.round(x,2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
@@ -164,11 +167,10 @@ class Headpose:
                 
         return image, p1, p2        
                 
-        
+    # Runs the entire algorithm    
     def run(self):
         while self.cap.isOpened():
             success, image = self.cap.read()
-            print(image.shape)
             start = time.time()
 
             image, results = self.preProcessImage(image)
