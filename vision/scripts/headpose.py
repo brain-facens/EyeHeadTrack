@@ -5,28 +5,31 @@ import time
 
 class Headpose:
     def __init__(self):
+        # MediaPipe Config
         self.mp_face_mesh                           = mp.solutions.face_mesh
         self.face_mesh                              = self.mp_face_mesh.FaceMesh(min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
         self.mp_drawing                             = mp.solutions.drawing_utils
         self.drawing_spec                           = self.mp_drawing.DrawingSpec(thickness = 1, circle_radius = 1)
+        
+        # Camera config
         self.cap                                    = cv2.VideoCapture(0)
         self.width_cam, self.height_cam             = 640, 480
         self.frame_R                                = 100
+        self.cap.set(3, self.width_cam)
+        self.cap.set(4, self.height_cam)
+        
+        # Interpolation
         self.smoothening                            = 8
         self.pTime                                  = 0
         self.plocX, self.plocY                      = 0, 0          #previous locations of x and y
         self.clocX, self.clocY                      = 0, 0          #current locations of x and y
         self.width_screen, self.height_screen       = 1920, 1080
-        self.cap.set(3, self.width_cam)
-        self.cap.set(4, self.height_cam)
 
+    # Preprocessing the image for the model
     def preProcessImage(self, image):
-        
-        # Flip the image horizontally for a later selfie-view display
-        # Also convert the color space from BGR to RGB
+        # Flip the image horizontally for a later selfie-view display and also convert the color space from BGR to RGB
         image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
         
-
         # To improve performance
         image.flags.writeable = False
         
@@ -41,7 +44,7 @@ class Headpose:
         
         return image, results
     
-    
+    # Get X, Y and Z coordinates
     def getCoords(self, face_2d, face_3d):
         focal_length        = 1 * self.width_cam
         dist_matrix         = np.zeros((4, 1), dtype=np.float64)
@@ -63,14 +66,15 @@ class Headpose:
         # Get angles
         angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat)
 
-        # Get the y rotation degree
+        # Get the rotation degrees
         x = angles[0] * 360
         y = angles[1] * 360
         z = angles[2] * 360
         
         return x, y, z, rot_vec, trans_vec, cam_matrix, dist_matrix
         
-
+        
+    # Get the text output
     def getText(self, x, y, z):
         # See where the user's head tilting
         text = ''
@@ -87,7 +91,7 @@ class Headpose:
         
         return text
    
-   
+    # Interpolation between camera points and screen points
     def interpolation(self, image, point):
         # Convert Coordinates as our cv window is 640*480 but my screen is full HD so have to convert it accordingly
         x = np.interp(point[0], (self.frame_R, self.width_cam - self.frame_R), (0, self.width_screen))     # converting x coordinates
@@ -97,7 +101,7 @@ class Headpose:
         self.clocX = self.plocX + (x - self.plocX) / self.smoothening
         self.clocY = self.plocY + (y - self.plocY) / self.smoothening
         
-        # Move Mouse
+        # Put circle in screen
         cv2.circle(image, (point[0], point[1]), 15, (255, 0, 255), cv2.FILLED)      # circle shows that we are in moving mode
         self.plocX, self.plocY = self.clocX, self.clocY
         
@@ -107,6 +111,7 @@ class Headpose:
         self.height_cam, self.width_cam, img_c = image.shape
         face_3d             = []
         face_2d             = []
+        p1, p2              = '', ''
         
         if results.multi_face_landmarks:
             cv2.rectangle(image, (self.frame_R, self.frame_R), (self.width_cam - self.frame_R, self.height_cam - self.frame_R), (255, 0, 255), 2)
