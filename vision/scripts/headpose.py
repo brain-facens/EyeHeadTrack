@@ -134,7 +134,16 @@ class Headpose:
         self.plocX, self.plocY = self.clocX, self.clocY
         
         self.saveRealPos(op = 0)
-        
+
+    # convert pixels to cm
+    def PixTocm(pixels):
+        centi = (pixels * 2.54)/96
+        print(round(centi, 2))
+
+    # convert cm to pixels
+    def cmToPixels(centi):
+        pixels = (centi * 96)/2.54
+        print(round(pixels, 2))
         
     # Prediction and results extraction
     def inference(self, image, results, start):
