@@ -1,7 +1,8 @@
 import cv2
-import mediapipe as mp
-import numpy as np
 import time
+import numpy as np
+import pandas as pd
+import mediapipe as mp
 
 class Headpose:
     def __init__(self):
@@ -24,7 +25,14 @@ class Headpose:
         self.plocX, self.plocY                      = 0, 0          # Previous locations of x and y
         self.clocX, self.clocY                      = 0, 0          # Current locations of x and y
         self.width_screen, self.height_screen       = 1920, 1080
-
+        
+        self.data                                   = {'timestamp': [],
+                                                       'x': [],
+                                                       'y': []}
+        self.df                                     = None
+        self.path_to_csv                            = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset'
+        
+        
     # Preprocessing the image for the model
     def preProcessImage(self, image):
         # Flip the image horizontally for a later selfie-view display and also convert the color space from BGR to RGB
@@ -43,6 +51,7 @@ class Headpose:
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         
         return image, results
+    
     
     # Get X, Y and Z coordinates
     def getCoords(self, face_2d, face_3d):
@@ -75,7 +84,7 @@ class Headpose:
         
         
     # Get the text output
-    def getText(self, x, y, z):
+    def getInfo(self, image, x, y, z, p1, p2):
         # See where the user's head tilting
         text = ''
         if y < -10:
@@ -89,13 +98,32 @@ class Headpose:
         else:
             text = "Forward"
         
-        return text
+        # Add the text an line on the image
+        cv2.line(image, p1, p2, (255, 0, 0), 3)
+        cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
+        cv2.putText(image, "x: " + str(np.round(x,2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(image, "y: " + str(np.round(y,2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(image, "z: " + str(np.round(z,2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    
+    
+    def saveRealPos(self, op):
+        # Effective position of the point obtained by interpolation
+        if op == 0:
+            self.data['timestamp'].append(time.time())              # Timestamp. To convert, please use datetime lib -> (datetime.fromtimestamp(timestamp)
+            self.data['x'].append(self.width_screen - self.clocX)   # X
+            self.data['y'].append(self.clocY)                       # Y
+            
+        # Save df in csv file    
+        elif op == 1:
+            self.df = pd.DataFrame(self.data)
+            self.df.to_csv(f'{self.path_to_csv}/gaze_points.csv')
+   
    
     # Interpolation between camera points and screen points
     def interpolation(self, image, point):
         # Convert Coordinates as our cv window is 640*480 but my screen is full HD so have to convert it accordingly
-        x = np.interp(point[0], (self.frame_R, self.width_cam - self.frame_R), (0, self.width_screen))     # converting x coordinates
-        y = np.interp(point[1], (self.frame_R, self.height_cam - self.frame_R), (0, self.height_screen))    # converting y
+        x = np.interp(point[0], (self.frame_R, self.width_cam - self.frame_R), (0, self.width_screen))      # converting x coordinates
+        y = np.interp(point[1], (self.frame_R, self.height_cam - self.frame_R), (0, self.height_screen))    # converting y coordinates
         
         # Smoothen Values avoid fluctuations
         self.clocX = self.plocX + (x - self.plocX) / self.smoothening
@@ -104,6 +132,8 @@ class Headpose:
         # Put circle in screen
         cv2.circle(image, (point[0], point[1]), 15, (255, 0, 255), cv2.FILLED)      # circle shows that we are in moving mode
         self.plocX, self.plocY = self.clocX, self.clocY
+        
+        self.saveRealPos(op = 0)
         
         
     # Prediction and results extraction
@@ -115,7 +145,8 @@ class Headpose:
         
         # Process the result to 2d an 3d face
         if results.multi_face_landmarks:
-            # Rectangle representing screen orientation
+            # Rectangle representing screen orientation self.df = pd.DataFrame(self.data)
+        
             cv2.rectangle(image, (self.frame_R, self.frame_R), (self.width_cam - self.frame_R, self.height_cam - self.frame_R), (255, 0, 255), 2)
             
             for face_landmarks in results.multi_face_landmarks:
@@ -136,8 +167,7 @@ class Headpose:
                         face_3d.append([x, y, lm.z])
                                 
                 x, y, z, rot_vec, trans_vec, cam_matrix, dist_matrix = self.getCoords(face_2d, face_3d)
-                text = self.getText(x, y, z)
-
+               
                 # Display the nose direction
                 nose_3d_projection, jacobian = cv2.projectPoints(nose_3d, rot_vec, trans_vec, cam_matrix, dist_matrix)
 
@@ -145,13 +175,7 @@ class Headpose:
                 p2 = (int(nose_2d[0] + y * 10) , int(nose_2d[1] - x * 10))              # Point 2
                 
                 self.interpolation(image, p2)
-                
-                # Add the text an line on the image
-                cv2.line(image, p1, p2, (255, 0, 0), 3)
-                cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-                cv2.putText(image, "x: " + str(np.round(x,2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                cv2.putText(image, "y: " + str(np.round(y,2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-                cv2.putText(image, "z: " + str(np.round(z,2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                self.getInfo(image, x, y, z, p1, p2)
             
             end = time.time()
             totalTime = end - start
@@ -167,6 +191,7 @@ class Headpose:
                 
         return image, p1, p2        
                 
+                
     # Runs the entire algorithm    
     def run(self):
         while self.cap.isOpened():
@@ -181,8 +206,11 @@ class Headpose:
 
             if cv2.waitKey(5) & 0xFF == 27:
                 break
-
+        
         self.cap.release()
+        self.saveRealPos(op = 1)
+        print(self.df)
+        
         
 if __name__ == '__main__':
     pose = Headpose()
