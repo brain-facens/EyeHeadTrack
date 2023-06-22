@@ -219,7 +219,6 @@ class Headpose:
         
         self.cap.release()
         self.saveRealPos(op = 1)
-        print(self.df)
         
         
 if __name__ == '__main__':
