@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
@@ -33,12 +32,7 @@ class dbscanAlgo:
         plt.xlabel('Width')
         plt.ylabel('Height')
         plt.title('Clustering'); 
-        plt.savefig(f'{self.path_save}clusters.png')
-        
-        with st.container():
-            st.write("Clusters")
-            st.bar_chart(self.df.Cluster)
-        
+        plt.savefig(f'{self.path_save}clusters.png')        
         self.saveData('clusters', self.df)
         
         

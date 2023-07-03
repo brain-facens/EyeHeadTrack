@@ -32,7 +32,7 @@ class Headpose:
                                                        'y': []}
         self.df                                     = None
         self.path_to_csv                            = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset'
-        self.path_image_test                        = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery-412912_1920.jpg'
+        
         
     # Preprocessing the image for the model
     def preProcessImage(self, image):
@@ -58,6 +58,9 @@ class Headpose:
     def getCoords(self, face_2d, face_3d):
         focal_length        = 1 * self.width_cam
         dist_matrix         = np.zeros((4, 1), dtype=np.float64)
+        
+        # Convert it to the NumPy array
+        face_2d     = np.array(face_2d, dtype=np.float64)
 
         # Convert it to the NumPy array
         face_3d     = np.array(face_3d, dtype=np.float64)
@@ -199,13 +202,6 @@ class Headpose:
                 
         return image, p1, p2        
                 
-    def showImage(self):
-        image = cv2.imread(self.path_image_test)
-        dsize = (1920, 1080)
-        image = cv2.resize(image, dsize, interpolation =  cv2.INTER_LINEAR)
-        cv2.imshow('Image', image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
                 
     # Runs the entire algorithm    
     def run(self):
@@ -227,7 +223,9 @@ class Headpose:
         
         
 if __name__ == '__main__':
-    pose         = Headpose()
-    analysis     = dbs()
+    pose = Headpose()
     pose.run()
-    analysis.run()
+    analisys = dbs()
+    analisys.run()
+    
+    
