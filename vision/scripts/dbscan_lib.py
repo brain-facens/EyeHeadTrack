@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import streamlit as st
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 
@@ -14,6 +15,8 @@ class dbscanAlgo:
         self.outliers           = ''
         self.img                = plt.imread("../test_images/grocery-412912_1920.jpg")
         self.path_save          = '../report/'
+        self.path_              = '../dataset/'
+        self.df_plot            = ''
         
         
     def dfHandling(self):
@@ -32,6 +35,18 @@ class dbscanAlgo:
         plt.title('Clustering'); 
         plt.savefig(f'{self.path_save}clusters.png')
         
+        with st.container():
+            st.write("Clusters")
+            st.bar_chart(self.df.Cluster)
+        
+        self.saveData('clusters', self.df)
+        
+        
+    def saveData(self, label, df):
+        if type(label) == type(''):
+            # Save df in csv file    
+            self.df_plot = pd.DataFrame(df)
+            self.df_plot.to_csv(f'{self.path_}/{label}.csv') 
         
     def plotGazePoints(self):
         plt.figure(figsize=(16, 9))
@@ -65,3 +80,7 @@ class dbscanAlgo:
         self.plotGazePoints()
         self.plotDensity()
         self.overlayImageData()
+        
+if __name__ == '__main__':
+    dbs = dbscanAlgo()
+    dbs.saveData('cluster', dbs.df)

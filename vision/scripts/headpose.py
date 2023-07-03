@@ -3,6 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 import mediapipe as mp
+from dbscan_lib import dbscanAlgo as dbs
 
 class Headpose:
     def __init__(self):
@@ -222,6 +223,8 @@ class Headpose:
         
         
 if __name__ == '__main__':
-    pose = Headpose()
+    pose         = Headpose()
+    analysis     = dbs()
     pose.run()
+    analysis.run()
         
