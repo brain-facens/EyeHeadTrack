@@ -42,6 +42,7 @@ class dbscanAlgo:
             # Save df in csv file    
             self.df_plot = pd.DataFrame(df)
             self.df_plot.to_csv(f'{self.path_}/{label}.csv') 
+   
         
     def plotGazePoints(self):
         plt.figure(figsize=(16, 9))
@@ -75,6 +76,7 @@ class dbscanAlgo:
         self.plotGazePoints()
         self.plotDensity()
         self.overlayImageData()
+    
         
 if __name__ == '__main__':
     dbs = dbscanAlgo()
