@@ -1,3 +1,4 @@
+#!/home/nata-brain/miniconda3/envs/eyegaze/bin/python
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -77,4 +78,4 @@ class dbscanAlgo:
         
 if __name__ == '__main__':
     dbs = dbscanAlgo()
-    dbs.saveData('cluster', dbs.df)
+    dbs.run()
