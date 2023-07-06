@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <launch>
     <node name="headpose" pkg="vision" type="headpose.py" output="screen"/>
-    
+    <node name="image" pkg="vision" type="dbscan_lib.py" output="screen"/>
 </launch>

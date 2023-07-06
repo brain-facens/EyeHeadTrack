@@ -1,5 +1,5 @@
 #!/home/nata-brain/miniconda3/envs/eyegaze/bin/ python
-
+import cv2
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -61,4 +61,3 @@ def dash():
     
 if __name__ == '__main__':
     dash()
-    Headpose().showImage()

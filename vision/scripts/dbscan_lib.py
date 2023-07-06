@@ -1,4 +1,5 @@
 #!/home/nata-brain/miniconda3/envs/eyegaze/bin/python
+import cv2
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -8,14 +9,14 @@ from sklearn.cluster import DBSCAN
 
 class dbscanAlgo:
     def __init__(self):
-        self.df                 = pd.read_csv('../dataset/gaze_points.csv')
+        self.df                 = pd.read_csv('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/gaze_points.csv') 
         self.X_train            = self.df[['x', 'y']]
         self.clustering         = DBSCAN(eps=12.5, min_samples=4).fit(self.X_train)
         self.DBSCAN_dataset     = self.X_train.copy()
         self.outliers           = ''
-        self.img                = plt.imread("../test_images/grocery-412912_1920.jpg")
-        self.path_save          = '../report/'
-        self.path_              = '../dataset/'
+        self.img                = plt.imread("/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg")
+        self.path_save          = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/report/'
+        self.path_              = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/'
         self.df_plot            = ''
         
         
@@ -27,13 +28,11 @@ class dbscanAlgo:
 
 
     def plotClusters(self):    
-        plt.figure(figsize=(16, 9))
+        fig = plt.figure(frameon=False)
         p = sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
         sns.move_legend(p, "upper right", bbox_to_anchor = (1.17, 1.), title = 'Clusters')
-        plt.xlabel('Width')
-        plt.ylabel('Height')
-        plt.title('Clustering'); 
-        plt.savefig(f'{self.path_save}clusters.png')        
+        fig.set_size_inches(1920/100, 1080/100)        
+        fig.savefig(f'{self.path_save}clusters.png')        
         self.saveData('clusters', self.df)
         
         
@@ -45,30 +44,33 @@ class dbscanAlgo:
    
         
     def plotGazePoints(self):
-        plt.figure(figsize=(16, 9))
+        fig = plt.figure(frameon=False)
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        plt.xlabel('Width')
-        plt.ylabel('Height')
-        plt.title('Gaze Points')
-        plt.savefig(f'{self.path_save}gaze_points.png')
+        fig.set_size_inches(1920/100, 1080/100) 
+        fig.savefig(f'{self.path_save}gaze_points.png')
         
         
     def plotDensity(self):
-        plt.figure(figsize=(16, 9))
-        sns.kdeplot(data = self.df, x="x", y="y", cmap="Reds", fill=True)
-        plt.title('Gaze Points Heatmap')
-        plt.savefig(f'{self.path_save}heatmap.png')   
+        fig = plt.figure(frameon = False)
+        sns.kdeplot(data = self.df, x="x", y="y", cmap="Reds", fill=True, alpha=.6)
+        fig.set_size_inches(1920/100, 1080/100)
+        
+        plt.imshow(self.img)
+        fig.savefig(f'{self.path_save}heatmap.png')   
         
         
     def overlayImageData(self):
-        fig, ax = plt.subplots(figsize = (16, 9))
-        p = sns.scatterplot(data = self.df, x = "x", y = "y")
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, clip = ((0, 1920), (0, 1080)), alpha=.6)
-        ax.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        ax.imshow(self.img, extent=[0, 1920, 0, 1080])
+        fig = plt.figure(frameon = False)
+        sns.scatterplot(data = self.df, x = "x", y = "y")
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha=.6)
+        fig.set_size_inches(1920/100, 1080/100)
+        plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
         fig.savefig(f'{self.path_save}overlay_image.png')
-        plt.close(fig) 
         
+    def showImage(self):
+        cv2.imshow('Image', self.img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         
     def run(self):
         self.dfHandling()
@@ -80,4 +82,7 @@ class dbscanAlgo:
         
 if __name__ == '__main__':
     dbs = dbscanAlgo()
+    dbs.showImage()
+    input('Aperte enter para o processamento dos dados: ')
     dbs.run()
+    print('------\nDados Processados\n------')
