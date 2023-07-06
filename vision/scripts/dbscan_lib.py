@@ -64,6 +64,7 @@ class dbscanAlgo:
         sns.scatterplot(data = self.df, x = "x", y = "y")
         sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha=.6)
         fig.set_size_inches(1920/100, 1080/100)
+        
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
         fig.savefig(f'{self.path_save}overlay_image.png')
         
