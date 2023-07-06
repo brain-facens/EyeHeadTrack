@@ -1,7 +1,5 @@
-from PIL import Image
+from headpose import Headpose as hd
 
-img1 = Image.open(r"/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/report/heatmap.png")
-img2 = Image.open(r"/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/report/overlay_image.png")
-
-img2.paste(img1, (0, 0))
-img2.show()
+if __name__ == '__main__':
+    pos = hd()
+    pos.run()
