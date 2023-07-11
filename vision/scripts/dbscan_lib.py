@@ -28,11 +28,9 @@ class dbscanAlgo:
 
 
     def plotClusters(self):    
-        fig = plt.figure(frameon=False)
-        p = sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
-        sns.move_legend(p, "upper right", bbox_to_anchor = (1.17, 1.), title = 'Clusters')
-        fig.set_size_inches(1920/100, 1080/100)        
-        fig.savefig(f'{self.path_save}clusters.png')        
+        plt.figure(figsize=(19.2, 10.8))
+        sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
+        plt.savefig(f'{self.path_save}clusters.png')        
         self.saveData('clusters', self.df)
         
         
@@ -44,34 +42,37 @@ class dbscanAlgo:
    
         
     def plotGazePoints(self):
-        fig = plt.figure(frameon=False)
+        plt.figure(figsize=(19.2, 10.8))
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        fig.set_size_inches(1920/100, 1080/100) 
-        fig.savefig(f'{self.path_save}gaze_points.png')
+        plt.savefig(f'{self.path_save}gaze_points.png')
         
         
     def plotDensity(self):
-        fig = plt.figure(frameon = False)
-        sns.kdeplot(data = self.df, x="x", y="y", cmap="Reds", fill=True, alpha=.6)
-        fig.set_size_inches(1920/100, 1080/100)
-        
-        plt.imshow(self.img)
-        fig.savefig(f'{self.path_save}heatmap.png')   
-        
+        plt.figure(figsize=(19.2, 10.8))
+        sns.scatterplot(data = self.df, x = "x", y = "y")
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
+        #img = cv2.cvtColor(cv2.imread('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'), cv2.COLOR_BGR2RGB)
+        #img = cv2.flip(img, 1)
+        #plt.imshow(img)
+        plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
+        plt.savefig(f'{self.path_save}heatmap.png', dpi = 100)
+        #plt.show() 
         
     def overlayImageData(self):
-        fig = plt.figure(frameon = False)
+        """ fig = plt.figure(frameon = False)
         sns.scatterplot(data = self.df, x = "x", y = "y")
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha=.6)
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True)
         fig.set_size_inches(1920/100, 1080/100)
-        
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        fig.savefig(f'{self.path_save}overlay_image.png')
+        fig.savefig(f'{self.path_save}overlay_image.png') """
+        pass
+        
         
     def showImage(self):
         cv2.imshow('Image', self.img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+        
         
     def run(self):
         self.dfHandling()
