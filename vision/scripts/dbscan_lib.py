@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
+sns.set(style="whitegrid",rc={"figure.figsize": (19.2, 10.8)})
 
 
 class dbscanAlgo:
@@ -49,23 +50,21 @@ class dbscanAlgo:
         
     def plotDensity(self):
         plt.figure(figsize=(19.2, 10.8))
-        sns.scatterplot(data = self.df, x = "x", y = "y")
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
-        #img = cv2.cvtColor(cv2.imread('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'), cv2.COLOR_BGR2RGB)
-        #img = cv2.flip(img, 1)
-        #plt.imshow(img)
+        #sns.scatterplot(data = self.df, x = "x", y = "y")
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        plt.savefig(f'{self.path_save}heatmap.png', dpi = 100)
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
+        plt.savefig(f'{self.path_save}heatmap.jpg', dpi = 100)
         #plt.show() 
         
+        
     def overlayImageData(self):
-        """ fig = plt.figure(frameon = False)
-        sns.scatterplot(data = self.df, x = "x", y = "y")
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True)
-        fig.set_size_inches(1920/100, 1080/100)
-        plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        fig.savefig(f'{self.path_save}overlay_image.png') """
-        pass
+        fig, ax = plt.subplots(figsize=(19.2, 10.8))
+        bg_image = plt.imread('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg')
+        ax.imshow(bg_image, extent=[0, 10, 0, 10])
+        #ax.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
+        ax.axis('off')
+        fig.savefig(f'{self.path_save}overlay.jpg', dpi = 100)
         
         
     def showImage(self):
