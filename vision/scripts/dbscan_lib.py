@@ -16,7 +16,7 @@ class dbscanAlgo:
         self.clustering         = DBSCAN(eps=12.5, min_samples=4).fit(self.X_train)
         self.DBSCAN_dataset     = self.X_train.copy()
         self.outliers           = ''
-        self.img                = plt.imread("/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg")
+        self.img                = np.asarray(Image.open('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'))
         self.path_save          = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/report/'
         self.path_              = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/'
         self.df_plot            = ''
@@ -66,9 +66,8 @@ class dbscanAlgo:
         
     # Processing data to overlay image     
     def overlayImageData(self):
-        img = np.asarray(Image.open('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'))
         fig, ax = plt.subplots()
-        ax.imshow(img, extent = [0, 1920, 0, 1080])
+        ax.imshow(self.img, extent = [0, 1920, 0, 1080])
         sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", common_norm=False, levels=50, fill = True, alpha = .5)
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
