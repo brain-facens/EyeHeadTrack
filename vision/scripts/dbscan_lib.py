@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
 sns.set(style="whitegrid",rc={"figure.figsize": (19.2, 10.8)})
 
-
+# Lib to data processing 
 class dbscanAlgo:
     def __init__(self):
         self.df                 = pd.read_csv('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/gaze_points.csv') 
@@ -21,14 +21,14 @@ class dbscanAlgo:
         self.path_              = '/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/'
         self.df_plot            = ''
         
-        
+    # Processing dataframe    
     def dfHandling(self):
         self.DBSCAN_dataset.loc[:,'Cluster'] = self.clustering.labels_ 
         self.DBSCAN_dataset.Cluster.value_counts().to_frame()
         self.outliers = self.DBSCAN_dataset[self.DBSCAN_dataset['Cluster']==-1]
         self.df = self.DBSCAN_dataset[self.DBSCAN_dataset['Cluster'] !=-1]
 
-
+    # Creating clusters image to report
     def plotClusters(self):    
         plt.figure(figsize=(19.2, 10.8))
         sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
@@ -37,14 +37,14 @@ class dbscanAlgo:
         plt.ylim(0, 1080)
         self.saveData('clusters', self.df)
         
-        
+    # Saving new dataframe to future processing    
     def saveData(self, label, df):
         if type(label) == type(''):
             # Save df in csv file    
             self.df_plot = pd.DataFrame(df)
             self.df_plot.to_csv(f'{self.path_}/{label}.csv') 
    
-        
+    # Creating gaze points image to report    
     def plotGazePoints(self):
         plt.figure(figsize=(19.2, 10.8))
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
@@ -52,7 +52,7 @@ class dbscanAlgo:
         plt.ylim(0, 1080)
         plt.savefig(f'{self.path_save}gaze_points.png')
         
-        
+    # Creating heatmap overlay image to report    
     def plotDensity(self):
         plt.figure(figsize=(19.2, 10.8))
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
@@ -64,7 +64,7 @@ class dbscanAlgo:
         
         self.overlayImageData()
         
-        
+    # Processing data to overlay image     
     def overlayImageData(self):
         img = np.asarray(Image.open('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'))
         fig, ax = plt.subplots()
@@ -73,7 +73,8 @@ class dbscanAlgo:
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
         fig.savefig(f'{self.path_save}overlay.jpg', dpi = 100)
-            
+        
+    # Showing image to test       
     def showImage(self):
         cv2.imshow('Image', self.img)
         cv2.waitKey(0)
