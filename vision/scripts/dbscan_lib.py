@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import pandas as pd
+from PIL import Image
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.cluster import DBSCAN
@@ -50,23 +51,22 @@ class dbscanAlgo:
         
     def plotDensity(self):
         plt.figure(figsize=(19.2, 10.8))
-        #sns.scatterplot(data = self.df, x = "x", y = "y")
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
+        
         sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
+        
         plt.savefig(f'{self.path_save}heatmap.jpg', dpi = 100)
-        #plt.show() 
+        
+        self.overlayImageData()
         
         
     def overlayImageData(self):
-        fig, ax = plt.subplots(figsize=(19.2, 10.8))
-        bg_image = plt.imread('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg')
-        ax.imshow(bg_image, extent=[0, 10, 0, 10])
-        #ax.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
-        ax.axis('off')
+        img = np.asarray(Image.open('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/test_images/grocery.jpg'))
+        fig, ax = plt.subplots()
+        ax.imshow(img, extent = [0, 1920, 0, 1080])
+        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", common_norm=False, levels=50, fill = True, alpha = .5)
         fig.savefig(f'{self.path_save}overlay.jpg', dpi = 100)
-        
-        
+            
     def showImage(self):
         cv2.imshow('Image', self.img)
         cv2.waitKey(0)
@@ -78,7 +78,7 @@ class dbscanAlgo:
         self.plotClusters()
         self.plotGazePoints()
         self.plotDensity()
-        self.overlayImageData()
+        
     
         
 if __name__ == '__main__':
