@@ -33,6 +33,8 @@ class dbscanAlgo:
         plt.figure(figsize=(19.2, 10.8))
         sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
         plt.savefig(f'{self.path_save}clusters.png')        
+        plt.xlim(0, 1920)
+        plt.ylim(0, 1080)
         self.saveData('clusters', self.df)
         
         
@@ -46,6 +48,8 @@ class dbscanAlgo:
     def plotGazePoints(self):
         plt.figure(figsize=(19.2, 10.8))
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
+        plt.xlim(0, 1920)
+        plt.ylim(0, 1080)
         plt.savefig(f'{self.path_save}gaze_points.png')
         
         
@@ -54,7 +58,8 @@ class dbscanAlgo:
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
         
         sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
-        
+        plt.xlim(0, 1920)
+        plt.ylim(0, 1080)
         plt.savefig(f'{self.path_save}heatmap.jpg', dpi = 100)
         
         self.overlayImageData()
@@ -65,6 +70,8 @@ class dbscanAlgo:
         fig, ax = plt.subplots()
         ax.imshow(img, extent = [0, 1920, 0, 1080])
         sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", common_norm=False, levels=50, fill = True, alpha = .5)
+        plt.xlim(0, 1920)
+        plt.ylim(0, 1080)
         fig.savefig(f'{self.path_save}overlay.jpg', dpi = 100)
             
     def showImage(self):
