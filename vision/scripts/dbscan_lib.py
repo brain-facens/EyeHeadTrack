@@ -12,7 +12,7 @@ sns.set(style="whitegrid",rc={"figure.figsize": (19.2, 10.8)})
 class dbscanAlgo:
     def __init__(self):
         self.df                 = pd.read_csv('/home/nata-brain/camera_ws/src/EyeHeadTrack/vision/dataset/gaze_points.csv') 
-        self.X_train            = self.df
+        self.X_train            = self.df[['x', 'y']]
         self.clustering         = DBSCAN(eps=12.5, min_samples=4).fit(self.X_train)
         self.DBSCAN_dataset     = self.X_train.copy()
         self.outliers           = ''
