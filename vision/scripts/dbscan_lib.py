@@ -5,6 +5,7 @@ import pandas as pd
 from PIL import Image
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.cm import ScalarMappable
 from sklearn.cluster import DBSCAN
 sns.set(style="whitegrid",rc={"figure.figsize": (19.2, 10.8)})
 
@@ -30,12 +31,14 @@ class dbscanAlgo:
 
     # Creating clusters image to report
     def plotClusters(self):    
-        plt.figure(figsize=(19.2, 10.8))
+        fig = plt.figure(figsize=(19.2, 10.8))
         sns.scatterplot(data = self.df, x = "x", y = "y", hue = self.df.Cluster, legend = "full", palette = "deep")
         plt.savefig(f'{self.path_save}clusters.png')        
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
         self.saveData('clusters', self.df)
+        
+        return fig
         
     # Saving new dataframe to future processing    
     def saveData(self, label, df):
@@ -46,32 +49,57 @@ class dbscanAlgo:
    
     # Creating gaze points image to report    
     def plotGazePoints(self):
-        plt.figure(figsize=(19.2, 10.8))
+        fig = plt.figure(figsize=(19.2, 10.8))
         plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
         plt.savefig(f'{self.path_save}gaze_points.png')
+        return fig
         
     # Creating heatmap overlay image to report    
     def plotDensity(self):
-        plt.figure(figsize=(19.2, 10.8))
-        plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle = '-')
-        
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", fill = True, alpha = .6)
+        fig = plt.figure(figsize=(19.2, 10.8))
+        plt.plot(self.df.iloc[:, 0], self.df.iloc[:, 1], 'r', linestyle='-')
+
+        sns.kdeplot(data=self.df, x="x", y="y", cmap="Reds", fill=True, alpha=.6)
+
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
-        plt.savefig(f'{self.path_save}heatmap.jpg', dpi = 100)
-        
-        self.overlayImageData()
+
+        # Create a ScalarMappable object using a colormap
+        cmap = plt.cm.get_cmap('Reds')  # Choose a colormap (e.g., 'Reds')
+        sm = ScalarMappable(cmap=cmap)
+        sm.set_array([])  # Set an empty array to enable color mapping
+
+        # Add a colorbar using the ScalarMappable object
+        cbar = plt.colorbar(sm)
+        cbar.set_label('Density')
+
+        plt.savefig(f'{self.path_save}heatmap.jpg', dpi=100)
+
+        return fig
         
     # Processing data to overlay image     
     def overlayImageData(self):
         fig, ax = plt.subplots()
-        ax.imshow(self.img, extent = [0, 1920, 0, 1080])
-        sns.kdeplot(data = self.df, x = "x", y = "y", cmap = "Reds", common_norm=False, levels=50, fill = True, alpha = .5)
+        ax.imshow(self.img, extent=[0, 1920, 0, 1080])
+
+        sns.kdeplot(data=self.df, x="x", y="y", cmap="Reds", common_norm=False, levels=50, fill=True, alpha=.5)
+
         plt.xlim(0, 1920)
         plt.ylim(0, 1080)
-        fig.savefig(f'{self.path_save}overlay.jpg', dpi = 100)
+
+        # Create a ScalarMappable object using a colormap
+        cmap = plt.cm.get_cmap('Reds')  # Choose a colormap (e.g., 'Reds')
+        sm = ScalarMappable(cmap=cmap)
+        sm.set_array([])  # Set an empty array to enable color mapping
+
+        # Add a colorbar using the ScalarMappable object
+        cbar = plt.colorbar(sm)
+        cbar.set_label('Density')
+
+        fig.savefig(f'{self.path_save}overlay.jpg', dpi=100)
+        return fig
         
     # Showing image to test       
     def showImage(self):
